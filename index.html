@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pescador del Casanare</title>
+  <link rel="stylesheet" href="estilos.css">
+</head>
+<body>
+
+<div id="game-container">
+
+  <div id="menu-screen" class="screen active">
+    <h1 class="menu-title">🎣 PESCADOR DEL CASANARE</h1>
+    <p class="menu-subtitle">De la Ciénaga del Tinije a las Bocas del río Casanare</p>
+    <button class="btn btn-play-grande" id="btn-play">JUGAR</button>
+</div>
+
+  <div id="map-screen" class="screen">
+    <div class="map-header">
+      <div>
+        <h2>🌊 Destinos</h2>
+        <span class="dinero-total">💵 $<span id="map-dinero">0</span></span>
+      </div>
+      <div class="map-header-buttons">
+        <button class="btn btn-sound" title="Silenciar/activar sonido">🔊</button>
+        <button class="btn btn-download-save" title="Descargar partida (respaldo)">💾</button>
+        <label class="btn btn-load-save" title="Cargar partida desde archivo">📂<input type="file" accept=".json" class="input-load-save" hidden></label>
+        <button class="btn btn-reset" title="Borrar progreso guardado">🗑️</button>
+        <button class="btn btn-backpack" id="btn-open-backpack">🎒 MOCHILA <span id="map-backpack-count">0</span></button>
+        <button class="btn btn-encyclopedia" id="btn-open-encyclopedia">📖 ENCICLOPEDIA</button>
+        <button class="btn btn-shop" id="btn-open-shop">🛒 TIENDA</button>
+      </div>
+    </div>
+    <div class="map-wrap" id="map-wrap">
+      <svg id="islands-map" viewBox="0 0 800 460" preserveAspectRatio="xMidYMid meet"></svg>
+      <div class="island-tooltip" id="island-tooltip"></div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="shop-modal">
+    <div class="modal-content modal-shop">
+      <h2 class="shop-title">🛒 Tienda del Pescador</h2>
+      <div class="shop-tabs">
+        <button class="tab-btn active-tab" data-t="tab-canas">🎣 Cañas</button>
+        <button class="tab-btn" data-t="tab-cebos">🪱 Cebos</button>
+        <button class="tab-btn" data-t="tab-mochilas">🎒 Mochilas</button>
+      </div>
+
+      <div id="tab-canas" class="shop-list active-list"></div>
+      <div id="tab-cebos" class="shop-list"></div>
+      <div id="tab-mochilas" class="shop-list"></div>
+
+      <button class="btn btn-back btn-cerrar-tienda" id="btn-close-shop">Volver</button>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="encyclopedia-modal">
+    <div class="modal-content modal-encyclopedia">
+      <h2 class="encyclopedia-title">📖 Peces de los Ríos de Casanare</h2>
+      <div class="encyclopedia-list" id="encyclopedia-list"></div>
+      <button class="btn btn-back btn-cerrar-tienda" id="btn-close-encyclopedia">Volver</button>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="backpack-modal">
+    <div class="modal-content modal-backpack">
+      <div class="backpack-header">
+        <svg class="backpack-icon" viewBox="0 0 60 40" xmlns="http://www.w3.org/2000/svg">
+          <ellipse cx="26" cy="20" rx="22" ry="15" fill="#4a7c59" stroke="#2e5239" stroke-width="2.5"/>
+          <path d="M 48,20 L 60,8 L 60,32 Z" fill="#4a7c59" stroke="#2e5239" stroke-width="2.5" stroke-linejoin="round"/>
+          <circle cx="16" cy="17" r="3" fill="#fff"/>
+          <circle cx="17" cy="17" r="1.6" fill="#1a1a1a"/>
+          <path d="M 10,26 Q 26,34 42,26" fill="none" stroke="#2e5239" stroke-width="2" stroke-linecap="round"/>
+          <rect x="20" y="14" width="14" height="10" rx="3" fill="#3d6647" stroke="#2e5239" stroke-width="1.5"/>
+        </svg>
+        <h2>Mochila de Pesca</h2>
+      </div>
+
+      <div class="backpack-weight-bar-container">
+        <div class="backpack-weight-bar" id="backpack-weight-bar"></div>
+        <span class="backpack-weight-label" id="backpack-weight-label">0 / 100 kg</span>
+      </div>
+
+      <div class="wip-banner">🚧 El precio por tamaño/mutación es un prototipo de la idea, no está balanceado todavía.</div>
+
+      <div class="backpack-list" id="backpack-list"></div>
+
+      <div class="backpack-footer">
+        <div class="backpack-total">Valor total: <b id="backpack-total-value">$0</b></div>
+        <button class="btn btn-sell-all" id="btn-sell-all">💰 Vender Todo</button>
+      </div>
+      <button class="btn btn-back btn-cerrar-tienda" id="btn-close-backpack">Volver</button>
+    </div>
+  </div>
+
+  <div id="fishing-screen" class="screen">
+    <div class="hud">
+      <div id="hud-island-name">Mar</div>
+      <div class="hud-paciencia">
+        🧘
+        <div class="patience-bar-container"><div class="patience-bar" id="patience-display"></div></div>
+      </div>
+      <div class="hud-mochila">🎒 <span id="hud-trip-money">0</span> / <span id="hud-mochila-max">100</span> kg</div>
+      <div class="hud-timer" id="hud-timer">⏱️ 75s</div>
+      <button class="btn btn-sound" title="Silenciar/activar sonido">🔊</button>
+      <button class="btn btn-back" id="btn-leave">Volver al puerto</button>
+    </div>
+    <canvas id="gameCanvas" width="1300" height="676"></canvas>
+  </div>
+
+</div>
+<div class="page-credit">🎣 Pescador del Casanare · Llanos Orientales, Colombia</div>
+
+<script src="datos.js"></script>
+<script src="pescar.js"></script>
+</body>
+</html>
