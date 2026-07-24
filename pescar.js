@@ -284,7 +284,8 @@ const ui = {
   modals: {
     shop: $('shop-modal'),
     encyclopedia: $('encyclopedia-modal'),
-    backpack: $('backpack-modal')
+    backpack: $('backpack-modal'),
+    tutorial: $('tutorial-modal')
   }
 };
 
@@ -957,6 +958,8 @@ function lighten(hex, amount) {
 }
 
 $('btn-play').onclick = () => { initAudio(); setScreen('map-screen'); renderMap(); };
+$('btn-tutorial').onclick = () => toggleModal('tutorial', true);
+$('btn-close-tutorial').onclick = () => toggleModal('tutorial', false);
 document.querySelectorAll('.btn-sound').forEach(btn => btn.onclick = toggleMute);
 $('btn-open-shop').onclick = () => toggleModal('shop', true);
 $('btn-close-shop').onclick = () => toggleModal('shop', false);

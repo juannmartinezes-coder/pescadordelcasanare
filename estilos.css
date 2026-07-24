@@ -694,6 +694,59 @@ body {
   font-size: 1.5rem;
 }
 
+.menu-buttons {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.btn-tutorial {
+  padding: 12px 22px;
+  border-radius: 30px;
+  font-size: 1rem;
+  background: transparent;
+  border: 2px solid var(--cyan);
+}
+
+.btn-tutorial:hover:not(:disabled) {
+  background: rgba(26, 188, 156, 0.15);
+}
+
+.modal-tutorial {
+  width: 520px;
+  max-height: 85vh;
+}
+
+.tutorial-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-height: 55vh;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+.tutorial-item {
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--border);
+}
+
+.tutorial-item h4 {
+  margin: 0 0 4px;
+  color: var(--cyan);
+}
+
+.tutorial-item p {
+  margin: 0;
+  font-size: .88rem;
+  line-height: 1.45;
+  color: var(--text-dim, #b8c4c8);
+}
+
 .btn-shop { background: var(--purple); }
 .btn-shop:hover:not(:disabled) { background: var(--purple-2); }
 

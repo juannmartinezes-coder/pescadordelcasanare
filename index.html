@@ -13,8 +13,53 @@
   <div id="menu-screen" class="screen active">
     <h1 class="menu-title">🎣 PESCADOR DEL CASANARE</h1>
     <p class="menu-subtitle">De la Ciénaga del Tinije a las Bocas del río Casanare</p>
-    <button class="btn btn-play-grande" id="btn-play">JUGAR</button>
+    <div class="menu-buttons">
+      <button class="btn btn-play-grande" id="btn-play">JUGAR</button>
+      <button class="btn btn-tutorial" id="btn-tutorial">📖 Tutorial</button>
+    </div>
 </div>
+
+  <div class="modal-overlay" id="tutorial-modal">
+    <div class="modal-content modal-tutorial">
+      <h2 class="shop-title">📖 Cómo jugar</h2>
+      <div class="tutorial-list">
+        <div class="tutorial-item">
+          <h4>🎣 Pescar</h4>
+          <p>Hazle clic a los peces cuando pasen cerca del anzuelo (la mirilla amarilla). Entre más rápido y errático nade el pez, más difícil es acertarle.</p>
+        </div>
+        <div class="tutorial-item">
+          <h4>🧘 Paciencia</h4>
+          <p>Se agota sola con el tiempo. Atrapar un pez la recupera un poco; fallar un clic o tocar una mina te la baja fuerte. Si llega a cero, el viaje se acaba.</p>
+        </div>
+        <div class="tutorial-item">
+          <h4>⏱️ Tiempo de viaje</h4>
+          <p>Cada visita a una isla dura unos segundos limitados. Cuando se acabe (o se acabe la paciencia), vuelves al puerto con lo que hayas pescado.</p>
+        </div>
+        <div class="tutorial-item">
+          <h4>🎒 Mochila</h4>
+          <p>Tiene un peso máximo. Si se llena, ya no puedes cargar más pescado hasta vender o volver al puerto.</p>
+        </div>
+        <div class="tutorial-item">
+          <h4>💣 Minas navales</h4>
+          <p>Flotan quietas en el agua. Si le haces clic a una por accidente, explota: pierdes TODO lo que llevas en la mochila y te baja mucho la paciencia. ¡Ojo con no confundirlas con peces!</p>
+        </div>
+        <div class="tutorial-item">
+          <h4>💰 Vender e islas</h4>
+          <p>De vuelta en el puerto, vende tu pescado por dinero. Úsalo para desbloquear islas más lejanas (más difíciles, pero con peces que valen más) y para mejorar tu equipo en la tienda.</p>
+        </div>
+        <div class="tutorial-item">
+          <h4>🛒 Equipo</h4>
+          <p>La caña reduce el castigo por fallar, el cebo agranda el área para engancharle clic al pez, y la mochila más grande te deja cargar más peso por viaje.</p>
+        </div>
+        <div class="tutorial-item">
+          <h4>🌈 Mutaciones</h4>
+          <p>Cada pez que atrapas puede salir con una mutación al azar (más grande, brillante, albino, o incluso rarezas como el Dorado Arcoíris) que multiplica cuánto vale.</p>
+        </div>
+      </div>
+      <button class="btn btn-back btn-cerrar-tienda" id="btn-close-tutorial">Entendido</button>
+    </div>
+  </div>
+
 
   <div id="map-screen" class="screen">
     <div class="map-header">
