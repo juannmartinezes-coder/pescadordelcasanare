@@ -14,10 +14,14 @@
     <h1 class="menu-title">🎣 PESCADOR DEL CASANARE</h1>
     <p class="menu-subtitle">De la Ciénaga del Tinije a las Bocas del río Casanare</p>
     <div class="menu-buttons">
-      <button class="btn btn-play-grande" id="btn-play">JUGAR</button>
+      <button class="btn btn-play-grande" id="btn-play">🎣 COMENZAR HISTORIA</button>
       <button class="btn btn-tutorial" id="btn-tutorial">📖 Tutorial</button>
     </div>
 </div>
+
+  <div class="modal-overlay" id="historia-modal">
+    <div class="modal-content modal-historia" id="historia-modal-body"></div>
+  </div>
 
   <div class="modal-overlay" id="tutorial-modal">
     <div class="modal-content modal-tutorial">
@@ -33,7 +37,7 @@
         </div>
         <div class="tutorial-item">
           <h4>⏱️ Tiempo de viaje</h4>
-          <p>Cada visita a una isla dura unos segundos limitados. Cuando se acabe (o se acabe la paciencia), vuelves al puerto con lo que hayas pescado.</p>
+          <p>Cada visita a un río dura unos segundos limitados. Cuando se acabe (o se acabe la paciencia), vuelves al puerto con lo que hayas pescado.</p>
         </div>
         <div class="tutorial-item">
           <h4>🎒 Mochila</h4>
@@ -44,8 +48,8 @@
           <p>Flotan quietas en el agua. Si le haces clic a una por accidente, explota: pierdes TODO lo que llevas en la mochila y te baja mucho la paciencia. ¡Ojo con no confundirlas con peces!</p>
         </div>
         <div class="tutorial-item">
-          <h4>💰 Vender e islas</h4>
-          <p>De vuelta en el puerto, vende tu pescado por dinero. Úsalo para desbloquear islas más lejanas (más difíciles, pero con peces que valen más) y para mejorar tu equipo en la tienda.</p>
+          <h4>💰 Vender y ríos</h4>
+          <p>De vuelta en el puerto, vende tu pescado por dinero. Úsalo para desbloquear ríos más lejanos (más difíciles, pero con peces que valen más) y para mejorar tu equipo en la tienda.</p>
         </div>
         <div class="tutorial-item">
           <h4>🛒 Equipo</h4>
@@ -55,16 +59,65 @@
           <h4>🌈 Mutaciones</h4>
           <p>Cada pez que atrapas puede salir con una mutación al azar (más grande, brillante, albino, o incluso rarezas como el Dorado Arcoíris) que multiplica cuánto vale.</p>
         </div>
+        <div class="tutorial-item">
+          <h4>🏠 La Casa</h4>
+          <p>Es la meta de la historia. Cada río tiene una mejora asociada: pide atrapar ciertos peces, algún pez raro, dinero y completar la enciclopedia de ese río. Revísala en el botón 🏠 CASA del mapa.</p>
+        </div>
+        <div class="tutorial-item">
+          <h4>🏅 Logros</h4>
+          <p>Se desbloquean solos mientras juegas (atrapar peces, completar la enciclopedia, sobrevivir a las minas, etc). Revísalos en el botón 🏅 LOGROS del mapa.</p>
+        </div>
       </div>
       <button class="btn btn-back btn-cerrar-tienda" id="btn-close-tutorial">Entendido</button>
     </div>
   </div>
 
+  <div id="lake-intro-screen" class="screen">
+    <div class="lake-scene" id="lake-scene">
+      <div class="lake-water"></div>
+      <div class="lake-water lake-water-2"></div>
+      <div class="lake-bubbles" id="lake-bubbles"></div>
+      <div class="lake-ripples" id="lake-ripples"></div>
+      <div class="lake-prompt" id="lake-prompt">🎣 Haz clic en el agua</div>
+    </div>
+
+    <div class="click-battle-overlay" id="click-battle-overlay">
+      <div class="click-battle-box">
+        <h2>¡Algo enorme picó el anzuelo!</h2>
+        <p>Hazle clic al botón bien rápido antes de que se suelte</p>
+        <div class="battle-timer" id="battle-timer">5.0s</div>
+        <div class="battle-bar-container"><div class="battle-bar" id="battle-bar"></div></div>
+        <button class="btn btn-play-grande btn-battle-click" id="btn-click-battle">¡TIRA! 🎣</button>
+      </div>
+    </div>
+
+    <div class="battle-result-overlay" id="battle-result-overlay">
+      <div class="battle-result-box">
+        <h2 id="battle-result-title">¡Lo sacaste!</h2>
+        <p id="battle-result-text">El pez se rindió. Hora de ir a pescar de verdad.</p>
+        <button class="btn btn-play-grande" id="btn-battle-continue">Continuar</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="home-screen" class="screen">
+    <div class="home-bg" id="home-bg"></div>
+    <div class="home-topbar">
+      <div class="home-casa-panel">
+        <div class="home-casa-texto">
+          <span class="home-casa-nombre" id="home-casa-nombre">🏠 Techo de Zinc</span>
+          <span class="home-casa-nivel" id="home-casa-nivel-badge">Nivel 1/5</span>
+        </div>
+        <button class="btn btn-play-grande home-btn-mejorar" id="btn-home-mejorar">🔨 Mejorar</button>
+      </div>
+    </div>
+    <button class="btn btn-play-grande home-btn-pescar" id="btn-home-pescar">🎣 Ir a pescar</button>
+  </div>
 
   <div id="map-screen" class="screen">
     <div class="map-header">
       <div>
-        <h2>🌊 Destinos</h2>
+        <h2>🌊 Ríos del Casanare</h2>
         <span class="dinero-total">💵 $<span id="map-dinero">0</span></span>
       </div>
       <div class="map-header-buttons">
@@ -74,6 +127,8 @@
         <button class="btn btn-reset" title="Borrar progreso guardado">🗑️</button>
         <button class="btn btn-backpack" id="btn-open-backpack">🎒 MOCHILA <span id="map-backpack-count">0</span></button>
         <button class="btn btn-encyclopedia" id="btn-open-encyclopedia">📖 ENCICLOPEDIA</button>
+        <button class="btn btn-logros" id="btn-open-logros">🏅 LOGROS <span id="map-logros-count">0/0</span></button>
+        <button class="btn btn-casa" id="btn-open-casa">🏠 CASA <span id="map-casa-nivel">1/5</span></button>
         <button class="btn btn-shop" id="btn-open-shop">🛒 TIENDA</button>
       </div>
     </div>
@@ -105,6 +160,31 @@
       <h2 class="encyclopedia-title">📖 Peces de los Ríos de Casanare</h2>
       <div class="encyclopedia-list" id="encyclopedia-list"></div>
       <button class="btn btn-back btn-cerrar-tienda" id="btn-close-encyclopedia">Volver</button>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="logros-modal">
+    <div class="modal-content modal-logros">
+      <h2 class="encyclopedia-title">🏅 Logros del Pescador</h2>
+      <div class="logros-list" id="logros-list"></div>
+      <button class="btn btn-back btn-cerrar-tienda" id="btn-close-logros">Volver</button>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="casa-modal">
+    <div class="modal-content modal-casa">
+      <h2 class="encyclopedia-title">🏠 La Casa de la Familia</h2>
+      <div id="casa-modal-body"></div>
+      <button class="btn btn-back btn-cerrar-tienda" id="btn-close-casa">Volver</button>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="casa-reaccion-modal">
+    <div class="modal-content modal-casa-reaccion">
+      <div class="casa-reaccion-svg" id="casa-reaccion-svg"></div>
+      <h2 id="casa-reaccion-titulo">🏠 Mejora completada</h2>
+      <p id="casa-reaccion-texto"></p>
+      <button class="btn btn-play-grande" id="btn-close-casa-reaccion">Seguir pescando</button>
     </div>
   </div>
 
@@ -152,7 +232,25 @@
       <button class="btn btn-back" id="btn-leave">Volver al puerto</button>
     </div>
     <canvas id="gameCanvas" width="1300" height="676"></canvas>
+
+        <div class="fight-panel" id="fight-panel">
+      <div class="fight-label" id="fight-label">¡Picó!</div>
+      <div class="fight-bar-row">
+        <span class="fight-icon">🎣</span>
+        <div class="fight-bar-container"><div class="fight-progress-bar" id="fight-progress-bar"></div></div>
+      </div>
+      <div class="fight-time-container"><div class="fight-time-bar" id="fight-time-bar"></div></div>
+      <div class="fight-hint">Haz clic sobre el pez para tirar de la caña</div>
+    </div>
   </div>
+
+    <div class="fishing-transition-overlay" id="fishing-transition-overlay">
+    <div class="transition-flash"></div>
+    <div class="transition-splash-drops" id="transition-splash-drops"></div>
+    <div class="transition-banner" id="transition-banner">🎣 ¡Hora de pescar!</div>
+  </div>
+
+  <div class="logro-toast-container" id="logro-toast-container"></div>
 
 </div>
 <div class="page-credit">🎣 Pescador del Casanare · Llanos Orientales, Colombia</div>
