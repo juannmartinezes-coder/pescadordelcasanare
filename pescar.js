@@ -352,7 +352,8 @@ const game = {
 
 const getImage = src => game.images[src] || (game.images[src] = Object.assign(new Image(), { src }));
 const currentWeight = () => state.backpack.reduce((sum, fish) => sum + fish.weight, 0);
-const fishPrice = fish => Math.round(fish.value * fish.sizeMult * fish.mutation.mult * (DATA_ISLAS.find(i => i.id === fish.islandId)?.multVenta ?? 1));
+const MULTIPLICADOR_DINERO = 1.6; // sube el dinero que da cada pez vendido
+const fishPrice = fish => Math.round(fish.value * fish.sizeMult * fish.mutation.mult * (DATA_ISLAS.find(i => i.id === fish.islandId)?.multVenta ?? 1) * MULTIPLICADOR_DINERO);
 const backpackValue = () => state.backpack.reduce((sum, fish) => sum + fishPrice(fish), 0);
 const fishThumb = (fish, locked) => locked ? '❓' : fish.img ? `<img src="${fish.img}" alt="${fish.n}">` : (fish.emoji || '🐟');
 const setScreen = id => document.querySelectorAll('.screen').forEach(s => s.classList.toggle('active', s.id === id));
@@ -1116,7 +1117,7 @@ function catchFish(fish, index) {
   const sizeMult = .7 + rand(.7);
   const weight = fish.type.peso * sizeMult;
   const mutation = pickMutation(equipoActual().cebo.suerte || 0);
-  if (currentWeight() + weight > mochilaMax()) return addLabel('¡Mochila llena!', fish.x, fish.y, '#e74c3c'), setPatience(-3);
+  if (currentWeight() + weight > mochilaMax()) return addLabel('Mochila llena', fish.x, fish.y, '#e74c3c'), setPatience(-3);
 
   fish.caught = true;
   state.backpack.push({ n: fish.type.n, value: fish.type.valor, img: fish.type.img, emoji: fish.type.emoji, color: fish.type.color, islandId: game.island.id, sizeMult, weight, mutation });
