@@ -1585,3 +1585,11 @@ body {
   .home-btn-pescar { right: 50%; transform: translateX(50%); bottom: 6%; }
   .home-casa-panel { flex-direction: column; gap: 8px; text-align: center; }
 }
+
+.menu-pescador-img {
+  display: block;
+  max-width: 220px;
+  width: 60%;
+  height: auto;
+  margin: 0 auto 10px;
+}
