@@ -386,6 +386,24 @@ function unlockLogro(logro) {
   if (ui.modals.logros && ui.modals.logros.style.display === 'flex') renderLogros();
 }
 
+function showMochilaLlenaToast() {
+  const cont = ui.logroToastContainer || document.getElementById('game-container');
+  if (!cont) return;
+  const toast = document.createElement('div');
+  toast.className = 'logro-toast mochila-llena-toast';
+  toast.innerHTML = `
+    <span class="logro-toast-icono">🎒</span>
+    <div class="logro-toast-texto">
+      <div class="logro-toast-titulo">¡Mochila llena!</div>
+      <div class="logro-toast-nombre">Ve a vender antes de seguir pescando</div>
+    </div>
+  `;
+  cont.appendChild(toast);
+  splash(true);
+  setTimeout(() => toast.classList.add('salir'), 3600);
+  setTimeout(() => toast.remove(), 4200);
+}
+
 function showLogroToast(logro) {
   if (!ui.logroToastContainer) return;
   const toast = document.createElement('div');
@@ -1127,7 +1145,10 @@ function catchFish(fish, index) {
   if (!state.stats.mutaciones.includes(mutation.id)) state.stats.mutaciones.push(mutation.id);
   state.stats.capturasPorEspecie[fish.type.n] = (state.stats.capturasPorEspecie[fish.type.n] || 0) + 1;
   if (MUTACIONES_RARAS_CASA.includes(mutation.id)) state.stats.capturasMutacionRara++;
-  if (currentWeight() >= mochilaMax() - 0.05) state.stats.mochilaLlena = true;
+  if (currentWeight() >= mochilaMax() - 0.05) {
+    if (!state.stats.mochilaLlena) showMochilaLlenaToast();
+    state.stats.mochilaLlena = true;
+  }
   checkLogros();
 
   updateHUD();
