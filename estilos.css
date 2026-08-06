@@ -1498,7 +1498,8 @@ body {
 
 #home-screen {
   position: relative;
-  min-height: 560px;
+  aspect-ratio: 5 / 3;
+  max-height: 78vh;
   border-radius: 16px;
   overflow: hidden;
   justify-content: flex-start;
@@ -1509,6 +1510,7 @@ body {
   inset: 0;
   background-size: cover;
   background-position: center;
+  image-rendering: pixelated;
   transition: background-image .3s ease;
 }
 
