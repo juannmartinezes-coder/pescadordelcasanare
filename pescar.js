@@ -798,7 +798,8 @@ function initFishingScene() {
   loop();
 }
 
-const TAM_ESCALA = () => (ui.canvas.width / 800) * 1.5;
+const FISH_SIZE_MULT = 1.7; // que tan grandes se ven los peces (antes 1.5)
+const TAM_ESCALA = () => (ui.canvas.width / 800) * FISH_SIZE_MULT;
 const RES_ESCALA = () => ui.canvas.width / 800;
 
 function createFish(type) {
@@ -824,7 +825,7 @@ function createMina() {
   return {
     x: 130 + rand(Math.max(40, w - 220)),
     y: 90 + rand(Math.max(40, h - 170)),
-    r: (16 + rand(6)) * TAM_ESCALA() / 1.5,
+    r: (16 + rand(6)) * TAM_ESCALA() / FISH_SIZE_MULT,
     bob: rand(Math.PI * 2),
     fase: 'subiendo',
     progreso: 0,
