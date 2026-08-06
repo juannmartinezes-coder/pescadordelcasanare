@@ -454,7 +454,7 @@ const CASA_NOMBRE_INICIAL = 'Techo de Zinc';
 const nombreCasaNivel = nivel => nivel <= 1 ? CASA_NOMBRE_INICIAL : (CASA_MEJORAS.find(m => m.id === nivel)?.nombre || '');
 const siguienteMejoraCasa = nivelActual => CASA_MEJORAS.find(m => m.id === nivelActual + 1);
 
-const casaImagenUrl = nivel => `fotos/casa/casa${Math.max(1, Math.min(5, nivel))}.jpg`;
+const casaImagenUrl = nivel => `fotos/casa/casa${Math.max(1, Math.min(5, nivel))}.png`;
 
 function renderHome() {
   const nombreActual = nombreCasaNivel(state.casaNivel);
