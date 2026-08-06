@@ -1499,7 +1499,7 @@ body {
 #home-screen {
   position: relative;
   aspect-ratio: 5 / 3;
-  max-height: 78vh;
+  max-height: 120vh;
   border-radius: 16px;
   overflow: hidden;
   justify-content: flex-start;
