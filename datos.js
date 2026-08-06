@@ -54,31 +54,7 @@ const EQUIPO_CEBOS = [{
   suerte: .14
 }];
 
-const EQUIPO_MOCHILAS = [{
-  nombre: "Mochila de Fique",
-  desc: "La de siempre. 34 kg de capacidad.",
-  costo: 0,
-  cap: 0
-}, {
-  nombre: "Mochila Reforzada",
-  desc: "+14 kg de capacidad extra.",
-  costo: 300,
-  cap: 14
-}, {
-  nombre: "Alforja de Cuero Llanero",
-  desc: "+36 kg de capacidad extra.",
-  costo: 950,
-  cap: 36
-}, {
-  nombre: "Cava Isotérmica del Río",
-  desc: "+68 kg de capacidad extra, y mantiene el pescado fresco.",
-  costo: 2200,
-  cap: 68
-}];
-
-const DIFICULTAD = {
-  pesoMaximoMochila: 34
-};
+const DIFICULTAD = {};
 
 const MUTACIONES_WIP = [{
   id: "normal",
@@ -151,7 +127,7 @@ const DATA_ISLAS = [{
   desc: true,
   costo: 0,
   fondo: "#1a6b8a",
-  fotoFondo: "fotos/fondo_rio_selva.jpg",
+  fotoFondo: "fotos/fondo_1.png",
   multVenta: 1,
   minas: 1,
   dificultad: {
@@ -171,8 +147,21 @@ const DATA_ISLAS = [{
     tam: 21,
     peso: 1,
     color: "#8d6e63",
-    prob: .32,
+    prob: .29,
     dato: "No es un pez: es lo más común que sale cuando el anzuelo va sin carnada de verdad. Todo pescador de caño se ha llevado esta sorpresa alguna vez."
+  }, {
+    n: "Chigüiro",
+    img: "fotos/chiguiro_1.png",
+    img2: "fotos/chiguiro_2.png",
+    mirar: "derecha",
+    valor: 6,
+    vel: 1.6,
+    tam: 24,
+    peso: 14,
+    color: "#a97c50",
+    prob: .03,
+    especial: "chiguiro",
+    dato: "No es un pez, es el roedor más grande del mundo y todo un símbolo de las sabanas y ciénagas del Casanare. Nada muy bien y aguanta la respiración varios minutos bajo el agua para esconderse de sus depredadores. Si lo pescas, se vende por el doble de lo normal."
   }, {
     n: "Bocachico",
     img: "fotos/pescadonormal.png",
@@ -210,7 +199,7 @@ const DATA_ISLAS = [{
   desc: false,
   costo: 600,
   fondo: "#0d4f6e",
-  fotoFondo: "fotos/fondo_rio_montanas.jpg",
+  fotoFondo: "fotos/fondo_2.png",
   multVenta: .90,
   minas: 2,
   dificultad: {
@@ -230,8 +219,21 @@ const DATA_ISLAS = [{
     tam: 15,
     peso: 1.5,
     color: "#6ab04c",
-    prob: .34,
+    prob: .31,
     dato: "Pez pequeño y muy común en caños y ciénagas llaneras. Se mueve en grupos y suele ser de los primeros peces que aprende a reconocer un niño que pesca en el río."
+  }, {
+    n: "Chigüiro",
+    img: "fotos/chiguiro_1.png",
+    img2: "fotos/chiguiro_2.png",
+    mirar: "derecha",
+    valor: 9,
+    vel: 1.7,
+    tam: 25,
+    peso: 15,
+    color: "#a97c50",
+    prob: .03,
+    especial: "chiguiro",
+    dato: "No es un pez, es el roedor más grande del mundo y todo un símbolo de las sabanas y ciénagas del Casanare. Nada muy bien y aguanta la respiración varios minutos bajo el agua para esconderse de sus depredadores. Si lo pescas, se vende por el doble de lo normal."
   }, {
     n: "Yamú",
     img: "fotos/yamu.png",
@@ -279,7 +281,7 @@ const DATA_ISLAS = [{
   desc: false,
   costo: 1600,
   fondo: "#0a1a2e",
-  fotoFondo: "fotos/fondo_rio_canoa.jpg",
+  fotoFondo: "fotos/fondo_3.png",
   multVenta: .78,
   minas: 3,
   dificultad: {
@@ -299,8 +301,21 @@ const DATA_ISLAS = [{
     tam: 16,
     peso: 1.5,
     color: "#fdcb6e",
-    prob: .30,
+    prob: .27,
     dato: "Pez plateado de cardumen, rápido y nervioso. Se mueve en grupos grandes cerca de la superficie, lo que lo hace presa fácil de peces más grandes."
+  }, {
+    n: "Chigüiro",
+    img: "fotos/chiguiro_1.png",
+    img2: "fotos/chiguiro_2.png",
+    mirar: "derecha",
+    valor: 15,
+    vel: 1.8,
+    tam: 26,
+    peso: 16,
+    color: "#a97c50",
+    prob: .03,
+    especial: "chiguiro",
+    dato: "No es un pez, es el roedor más grande del mundo y todo un símbolo de las sabanas y ciénagas del Casanare. Nada muy bien y aguanta la respiración varios minutos bajo el agua para esconderse de sus depredadores. Si lo pescas, se vende por el doble de lo normal."
   }, {
     n: "Picuda",
     img: "fotos/picuda.png",
@@ -348,7 +363,7 @@ const DATA_ISLAS = [{
   desc: false,
   costo: 3800,
   fondo: "#1c0a00",
-  fotoFondo: "fotos/fondo_rio_selva.jpg",
+  fotoFondo: "fotos/fondo_4.png",
   multVenta: .65,
   minas: 4,
   dificultad: {
@@ -368,8 +383,21 @@ const DATA_ISLAS = [{
     tam: 28,
     peso: 5,
     color: "#2d3436",
-    prob: .29,
+    prob: .26,
     dato: "Raya de agua dulce que se entierra en la arena del fondo. Tiene un aguijón en la cola, así que en aguas bajas hay que caminar arrastrando los pies para no pisarla sin querer."
+  }, {
+    n: "Chigüiro",
+    img: "fotos/chiguiro_1.png",
+    img2: "fotos/chiguiro_2.png",
+    mirar: "derecha",
+    valor: 26,
+    vel: 1.9,
+    tam: 27,
+    peso: 18,
+    color: "#a97c50",
+    prob: .03,
+    especial: "chiguiro",
+    dato: "No es un pez, es el roedor más grande del mundo y todo un símbolo de las sabanas y ciénagas del Casanare. Nada muy bien y aguanta la respiración varios minutos bajo el agua para esconderse de sus depredadores. Si lo pescas, se vende por el doble de lo normal."
   }, {
     n: "Bagre Bocón",
     img: "fotos/bagre_bocon.png",
@@ -417,7 +445,7 @@ const DATA_ISLAS = [{
   desc: false,
   costo: 8000,
   fondo: "#050c14",
-  fotoFondo: "fotos/fondo_rio_montanas.jpg",
+  fotoFondo: "fotos/fondo_5.png",
   multVenta: .52,
   minas: 5,
   dificultad: {
@@ -437,8 +465,21 @@ const DATA_ISLAS = [{
     tam: 20,
     peso: 3,
     color: "#81ecec",
-    prob: .30,
+    prob: .27,
     dato: "Pez migratorio que remonta el río contra la corriente para desovar, en un viaje que puede tomarle semanas enteras."
+  }, {
+    n: "Chigüiro",
+    img: "fotos/chiguiro_1.png",
+    img2: "fotos/chiguiro_2.png",
+    mirar: "derecha",
+    valor: 45,
+    vel: 2.0,
+    tam: 28,
+    peso: 20,
+    color: "#a97c50",
+    prob: .03,
+    especial: "chiguiro",
+    dato: "No es un pez, es el roedor más grande del mundo y todo un símbolo de las sabanas y ciénagas del Casanare. Nada muy bien y aguanta la respiración varios minutos bajo el agua para esconderse de sus depredadores. Si lo pescas, se vende por el doble de lo normal."
   }, {
     n: "Bagre Piraíba",
     img: "fotos/bagre_piraiba.png",
@@ -482,7 +523,7 @@ const DATA_ISLAS = [{
   }, ]
 }];
 
-const TOTAL_ESPECIES = DATA_ISLAS.reduce((n, isla) => n + isla.peces.length, 0);
+const TOTAL_ESPECIES = new Set(DATA_ISLAS.flatMap(isla => isla.peces.map(p => p.n))).size;
 
 const LOGROS = [{
   id: "primer_pez",
@@ -545,12 +586,6 @@ const LOGROS = [{
   icono: "💣",
   check: s => s.stats.nerviosAcero === true
 }, {
-  id: "mochila_llena",
-  nombre: "Mochila al Tope",
-  desc: "Llena la mochila al máximo de peso en un solo viaje.",
-  icono: "🎒",
-  check: s => s.stats.mochilaLlena === true
-}, {
   id: "cuenta_gorda",
   nombre: "Cuenta Gorda",
   desc: "Gana $10.000 acumulados vendiendo pescado.",
@@ -559,17 +594,22 @@ const LOGROS = [{
 }, {
   id: "equipo_pro",
   nombre: "Equipo Profesional",
-  desc: "Consigue el equipo de nivel tope en caña, cebo y mochila.",
+  desc: "Consigue el equipo de nivel tope en caña y cebo.",
   icono: "🛠️",
   check: s => s.canaNivel === EQUIPO_CANAS.length - 1 &&
-              s.ceboNivel === EQUIPO_CEBOS.length - 1 &&
-              s.mochilaNivel === EQUIPO_MOCHILAS.length - 1
+              s.ceboNivel === EQUIPO_CEBOS.length - 1
 }, {
   id: "viaje_completo",
   nombre: "Las Bocas del Casanare",
   desc: "Llega a pescar en Bocas del Casanare, el último tramo del río.",
   icono: "🌊",
   check: s => s.stats.islaMaxAlcanzada >= 5
+}, {
+  id: "chiguiro_capturado",
+  nombre: "¡Casi un Pariente!",
+  desc: "Pesca un chigüiro en cualquier río.",
+  icono: "🐹",
+  check: s => s.stats.especies.includes("Chigüiro")
 }, {
   id: "casa_completa",
   nombre: "La Casa de los Sueños",

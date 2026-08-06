@@ -11,9 +11,7 @@
 <div id="game-container">
 
   <div id="menu-screen" class="screen active">
-    <img src="fotos/pescador.png" alt="Pescador del Casanare" class="menu-pescador-img">
-    <h1 class="menu-title">PESCADOR DEL CASANARE</h1>
-    <p class="menu-subtitle">De la Ciénaga del Tinije a las Bocas del río Casanare</p>
+    <div class="menu-subtitle">De la Ciénaga del Tinije a las Bocas del río Casanare</div>
     <div class="menu-buttons">
       <button class="btn btn-play-grande" id="btn-play">🎣 COMENZAR HISTORIA</button>
       <button class="btn btn-tutorial" id="btn-tutorial">📖 Tutorial</button>
@@ -41,12 +39,12 @@
           <p>Cada visita a un río dura unos segundos limitados. Cuando se acabe (o se acabe la paciencia), vuelves al puerto con lo que hayas pescado.</p>
         </div>
         <div class="tutorial-item">
-          <h4>🎒 Mochila</h4>
-          <p>Tiene un peso máximo. Si se llena, ya no puedes cargar más pescado hasta vender o volver al puerto.</p>
+          <h4>🧺 Capturas</h4>
+          <p>Cada pez que atrapas se guarda ahí, sin límite de peso. Revísalas cuando quieras y vende lo que necesites.</p>
         </div>
         <div class="tutorial-item">
           <h4>💣 Minas navales</h4>
-          <p>Flotan quietas en el agua. Si le haces clic a una por accidente, explota: pierdes TODO lo que llevas en la mochila y te baja mucho la paciencia. ¡Ojo con no confundirlas con peces!</p>
+          <p>Flotan quietas en el agua. Si le haces clic a una por accidente, explota: pierdes TODO lo que llevas capturado y te baja mucho la paciencia. ¡Ojo con no confundirlas con peces!</p>
         </div>
         <div class="tutorial-item">
           <h4>💰 Vender y ríos</h4>
@@ -54,7 +52,7 @@
         </div>
         <div class="tutorial-item">
           <h4>🛒 Equipo</h4>
-          <p>La caña reduce el castigo por fallar, el cebo agranda el área para engancharle clic al pez, y la mochila más grande te deja cargar más peso por viaje.</p>
+          <p>La caña reduce el castigo por fallar y te da más calma al atrapar, y el cebo agranda el área para engancharle clic al pez y sube la suerte de mutaciones raras.</p>
         </div>
         <div class="tutorial-item">
           <h4>🌈 Mutaciones</h4>
@@ -126,7 +124,7 @@
         <button class="btn btn-download-save" title="Descargar partida (respaldo)">💾</button>
         <label class="btn btn-load-save" title="Cargar partida desde archivo">📂<input type="file" accept=".json" class="input-load-save" hidden></label>
         <button class="btn btn-reset" title="Borrar progreso guardado">🗑️</button>
-        <button class="btn btn-backpack" id="btn-open-backpack">🎒 MOCHILA <span id="map-backpack-count">0</span></button>
+        <button class="btn btn-capturas" id="btn-open-capturas">🧺 CAPTURAS <span id="map-capturas-count">0</span></button>
         <button class="btn btn-encyclopedia" id="btn-open-encyclopedia">📖 ENCICLOPEDIA</button>
         <button class="btn btn-logros" id="btn-open-logros">🏅 LOGROS <span id="map-logros-count">0/0</span></button>
         <button class="btn btn-casa" id="btn-open-casa">🏠 CASA <span id="map-casa-nivel">1/5</span></button>
@@ -134,7 +132,7 @@
       </div>
     </div>
     <div class="map-wrap" id="map-wrap">
-      <svg id="islands-map" viewBox="0 0 800 460" preserveAspectRatio="xMidYMid meet"></svg>
+      <svg id="islands-map" viewBox="0 0 394 256" preserveAspectRatio="xMidYMid meet"></svg>
       <div class="island-tooltip" id="island-tooltip"></div>
     </div>
   </div>
@@ -145,12 +143,10 @@
       <div class="shop-tabs">
         <button class="tab-btn active-tab" data-t="tab-canas">🎣 Cañas</button>
         <button class="tab-btn" data-t="tab-cebos">🪱 Cebos</button>
-        <button class="tab-btn" data-t="tab-mochilas">🎒 Mochilas</button>
       </div>
 
       <div id="tab-canas" class="shop-list active-list"></div>
       <div id="tab-cebos" class="shop-list"></div>
-      <div id="tab-mochilas" class="shop-list"></div>
 
       <button class="btn btn-back btn-cerrar-tienda" id="btn-close-shop">Volver</button>
     </div>
@@ -189,34 +185,22 @@
     </div>
   </div>
 
-  <div class="modal-overlay" id="backpack-modal">
-    <div class="modal-content modal-backpack">
-      <div class="backpack-header">
-        <svg class="backpack-icon" viewBox="0 0 60 40" xmlns="http://www.w3.org/2000/svg">
-          <ellipse cx="26" cy="20" rx="22" ry="15" fill="#4a7c59" stroke="#2e5239" stroke-width="2.5"/>
-          <path d="M 48,20 L 60,8 L 60,32 Z" fill="#4a7c59" stroke="#2e5239" stroke-width="2.5" stroke-linejoin="round"/>
-          <circle cx="16" cy="17" r="3" fill="#fff"/>
-          <circle cx="17" cy="17" r="1.6" fill="#1a1a1a"/>
-          <path d="M 10,26 Q 26,34 42,26" fill="none" stroke="#2e5239" stroke-width="2" stroke-linecap="round"/>
-          <rect x="20" y="14" width="14" height="10" rx="3" fill="#3d6647" stroke="#2e5239" stroke-width="1.5"/>
-        </svg>
-        <h2>Mochila de Pesca</h2>
-      </div>
-
-      <div class="backpack-weight-bar-container">
-        <div class="backpack-weight-bar" id="backpack-weight-bar"></div>
-        <span class="backpack-weight-label" id="backpack-weight-label">0 / 100 kg</span>
+  <div class="modal-overlay" id="capturas-modal">
+    <div class="modal-content modal-capturas">
+      <div class="capturas-header">
+        <span class="capturas-icon">🧺</span>
+        <h2>Tus Capturas</h2>
       </div>
 
       <div class="wip-banner">🚧 El precio por tamaño/mutación es un prototipo de la idea, no está balanceado todavía.</div>
 
-      <div class="backpack-list" id="backpack-list"></div>
+      <div class="capturas-list" id="capturas-list"></div>
 
-      <div class="backpack-footer">
-        <div class="backpack-total">Valor total: <b id="backpack-total-value">$0</b></div>
+      <div class="capturas-footer">
+        <div class="capturas-total">Valor total: <b id="capturas-total-value">$0</b></div>
         <button class="btn btn-sell-all" id="btn-sell-all">💰 Vender Todo</button>
       </div>
-      <button class="btn btn-back btn-cerrar-tienda" id="btn-close-backpack">Volver</button>
+      <button class="btn btn-back btn-cerrar-tienda" id="btn-close-capturas">Volver</button>
     </div>
   </div>
 
@@ -227,7 +211,7 @@
         🧘
         <div class="patience-bar-container"><div class="patience-bar" id="patience-display"></div></div>
       </div>
-      <div class="hud-mochila">🎒 <span id="hud-trip-money">0</span> / <span id="hud-mochila-max">100</span> kg</div>
+      <div class="hud-capturas">🧺 <span id="hud-trip-capturas">0</span> capturas</div>
       <div class="hud-timer" id="hud-timer">⏱️ 75s</div>
       <button class="btn btn-sound" title="Silenciar/activar sonido">🔊</button>
       <button class="btn btn-back" id="btn-leave">Volver al puerto</button>

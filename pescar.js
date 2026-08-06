@@ -29,8 +29,7 @@ const state = {
   patience: 100,
   canaNivel: 0,
   ceboNivel: 0,
-  mochilaNivel: 0,
-  backpack: [],
+  capturas: [],
   logros: [],
   historiaVista: false,
   casaNivel: 1,
@@ -40,7 +39,6 @@ const state = {
     especies: [],
     mutaciones: [],
     nerviosAcero: false,
-    mochilaLlena: false,
     islaMaxAlcanzada: 0,
     capturasPorEspecie: {},
     capturasMutacionRara: 0
@@ -52,10 +50,8 @@ const MUTACIONES_RARAS_CASA = ['oro', 'arcoiris', 'cosmico'];
 const curDif = () => ({ ...DIFICULTAD, ...(game.island ? game.island.dificultad : {}) });
 const equipoActual = () => ({
   cana: EQUIPO_CANAS[state.canaNivel] || EQUIPO_CANAS[0],
-  cebo: EQUIPO_CEBOS[state.ceboNivel] || EQUIPO_CEBOS[0],
-  mochila: EQUIPO_MOCHILAS[state.mochilaNivel] || EQUIPO_MOCHILAS[0]
+  cebo: EQUIPO_CEBOS[state.ceboNivel] || EQUIPO_CEBOS[0]
 });
-const mochilaMax = () => DIFICULTAD.pesoMaximoMochila + equipoActual().mochila.cap;
 
 const AUDIO = { ctx: null, master: null, muted: false, cigarraTimer: null, aveTimer: null };
 
@@ -197,9 +193,8 @@ function buildSaveData() {
     money: state.money,
     canaNivel: state.canaNivel,
     ceboNivel: state.ceboNivel,
-    mochilaNivel: state.mochilaNivel,
     unlocked: DATA_ISLAS.filter(i => i.desc).map(i => i.id),
-    backpack: state.backpack,
+    capturas: state.capturas,
     logros: state.logros,
     stats: state.stats,
     historiaVista: state.historiaVista,
@@ -211,12 +206,11 @@ function applySaveData(data) {
   state.money = Number(data.money) || 0;
   state.canaNivel = Number(data.canaNivel) || 0;
   state.ceboNivel = Number(data.ceboNivel) || 0;
-  state.mochilaNivel = Number(data.mochilaNivel) || 0;
   (data.unlocked || []).forEach(id => {
     const isla = DATA_ISLAS.find(i => i.id === id);
     if (isla) isla.desc = true;
   });
-  if (Array.isArray(data.backpack)) state.backpack = data.backpack;
+  if (Array.isArray(data.capturas)) state.capturas = data.capturas;
   if (Array.isArray(data.logros)) state.logros = data.logros;
   state.historiaVista = !!data.historiaVista;
   state.casaNivel = Math.max(1, Number(data.casaNivel) || 1);
@@ -227,7 +221,6 @@ function applySaveData(data) {
       especies: Array.isArray(data.stats.especies) ? data.stats.especies : [],
       mutaciones: Array.isArray(data.stats.mutaciones) ? data.stats.mutaciones : [],
       nerviosAcero: !!data.stats.nerviosAcero,
-      mochilaLlena: !!data.stats.mochilaLlena,
       islaMaxAlcanzada: Number(data.stats.islaMaxAlcanzada) || 0,
       capturasPorEspecie: (data.stats.capturasPorEspecie && typeof data.stats.capturasPorEspecie === 'object') ? data.stats.capturasPorEspecie : {},
       capturasMutacionRara: Number(data.stats.capturasMutacionRara) || 0
@@ -288,11 +281,10 @@ function cargarPartidaDesdeArchivo(file) {
 const ui = {
   money: $('map-dinero'),
   islandName: $('hud-island-name'),
-  tripWeight: $('hud-trip-money'),
-  maxWeight: $('hud-mochila-max'),
+  tripCapturas: $('hud-trip-capturas'),
   timer: $('hud-timer'),
   patienceBar: $('patience-display'),
-  backpackCount: $('map-backpack-count'),
+  capturasCount: $('map-capturas-count'),
   map: $('islands-map'),
   tooltip: $('island-tooltip'),
   mapWrap: $('map-wrap'),
@@ -304,7 +296,7 @@ const ui = {
   modals: {
     shop: $('shop-modal'),
     encyclopedia: $('encyclopedia-modal'),
-    backpack: $('backpack-modal'),
+    capturas: $('capturas-modal'),
     tutorial: $('tutorial-modal'),
     logros: $('logros-modal'),
     historia: $('historia-modal'),
@@ -324,20 +316,12 @@ const ui = {
   homeBtnMejorar: $('btn-home-mejorar')
 };
 
-const MAP_SHAPES = {
-  1: { cx: 150, cy: 105, color: '#9ccc4f', decor: 'palmera', path: 'M 55,95 C 35,70 38,35 75,18 C 105,4 145,2 175,15 C 205,28 235,45 230,80 C 226,108 210,135 175,145 C 145,154 110,150 80,138 C 58,129 62,112 55,95 Z' },
-  2: { cx: 430, cy: 145, color: '#a9b86a', decor: 'canoa', path: 'M 372,140 C 368,115 382,95 408,90 C 430,86 455,92 472,108 C 488,123 498,140 488,158 C 478,175 455,185 428,182 C 405,180 385,172 376,158 C 370,150 374,148 372,140 Z' },
-  3: { cx: 250, cy: 315, color: '#8bc34a', decor: 'roca', path: 'M 176,316 C 162,284 174,250 212,236 C 248,223 304,225 338,248 C 366,267 374,304 356,332 C 338,360 296,382 248,380 C 210,378 182,356 176,316 Z' },
-  4: { cx: 590, cy: 315, color: '#93a852', decor: 'ceiba', path: 'M 515,312 C 502,282 516,246 548,230 C 584,212 638,220 668,244 C 696,267 704,306 690,334 C 674,365 634,387 586,388 C 548,388 524,360 515,312 Z' },
-  5: { cx: 685, cy: 105, color: '#c2b280', decor: 'junco', path: 'M 626,105 C 620,84 628,58 650,46 C 676,31 712,34 734,48 C 756,62 764,90 756,112 C 748,132 726,148 698,151 C 668,154 636,136 626,105 Z' }
-};
-
-const DECOR = {
-  palmera: (x, y) => `<rect x="${x - 3}" y="${y - 4}" width="6" height="28" rx="3" fill="#8d6e63"/><path d="M ${x},${y - 6} C ${x - 22},${y - 28} ${x - 34},${y - 16} ${x - 10},${y - 2}" fill="none" stroke="#2ecc71" stroke-width="5" stroke-linecap="round"/><path d="M ${x},${y - 8} C ${x + 22},${y - 28} ${x + 34},${y - 16} ${x + 10},${y - 2}" fill="none" stroke="#27ae60" stroke-width="5" stroke-linecap="round"/><path d="M ${x},${y - 10} C ${x - 6},${y - 34} ${x + 6},${y - 34} ${x},${y - 8}" fill="none" stroke="#58d68d" stroke-width="5" stroke-linecap="round"/>`,
-  canoa: (x, y) => `<path d="M ${x - 22},${y + 6} Q ${x},${y + 20} ${x + 22},${y + 6} L ${x + 17},${y - 2} Q ${x},${y + 6} ${x - 17},${y - 2} Z" fill="#8d5a2b" stroke="#5d3a1a" stroke-width="2.5" stroke-linejoin="round"/><line x1="${x - 20}" y1="${y - 2}" x2="${x + 20}" y2="${y - 2}" stroke="#a8703c" stroke-width="2"/><line x1="${x + 10}" y1="${y - 20}" x2="${x + 22}" y2="${y + 2}" stroke="#6d4c30" stroke-width="3" stroke-linecap="round"/><ellipse cx="${x + 22}" cy="${y - 21}" rx="5" ry="2.5" fill="#6d4c30" transform="rotate(-30 ${x + 22} ${y - 21})"/>`,
-  roca: (x, y) => `<path d="M ${x - 16},${y + 14} Q ${x - 20},${y - 6} ${x - 4},${y - 12} Q ${x + 14},${y - 16} ${x + 16},${y} Q ${x + 18},${y + 12} ${x},${y + 14} Z" fill="#9e9e9e" stroke="#616161" stroke-width="2.5" stroke-linejoin="round"/><path d="M ${x - 8},${y - 2} Q ${x},${y - 6} ${x + 8},${y - 2}" stroke="#757575" stroke-width="1.5" fill="none"/>`,
-  ceiba: (x, y) => `<path d="M ${x - 5},${y + 18} L ${x - 8},${y - 4} L ${x + 8},${y - 4} L ${x + 5},${y + 18} Z" fill="#6d4c30" stroke="#4a3520" stroke-width="2"/><circle cx="${x}" cy="${y - 22}" r="26" fill="#4a7c3f" stroke="#33552c" stroke-width="2.5"/><circle cx="${x - 16}" cy="${y - 12}" r="14" fill="#558b4f" stroke="#33552c" stroke-width="2"/><circle cx="${x + 16}" cy="${y - 14}" r="15" fill="#5fa056" stroke="#33552c" stroke-width="2"/>`,
-  junco: (x, y) => `<path d="M ${x - 16},${y + 16} Q ${x - 22},${y - 14} ${x - 14},${y - 36}" stroke="#6ab04c" stroke-width="4" fill="none" stroke-linecap="round"/><path d="M ${x - 6},${y + 16} Q ${x - 8},${y - 20} ${x - 2},${y - 44}" stroke="#82c46c" stroke-width="4" fill="none" stroke-linecap="round"/><path d="M ${x + 4},${y + 16} Q ${x + 2},${y - 18} ${x + 8},${y - 40}" stroke="#6ab04c" stroke-width="4" fill="none" stroke-linecap="round"/><path d="M ${x + 14},${y + 16} Q ${x + 18},${y - 12} ${x + 16},${y - 32}" stroke="#82c46c" stroke-width="4" fill="none" stroke-linecap="round"/><ellipse cx="${x - 14}" cy="${y - 38}" rx="2.5" ry="6" fill="#8d6e30"/><ellipse cx="${x - 2}" cy="${y - 46}" rx="2.5" ry="6" fill="#8d6e30"/><ellipse cx="${x + 8}" cy="${y - 42}" rx="2.5" ry="6" fill="#8d6e30"/><ellipse cx="${x + 16}" cy="${y - 34}" rx="2.5" ry="6" fill="#8d6e30"/>`
+const MAP_PINS = {
+  1: { x: 113, y: 60 },
+  2: { x: 106, y: 101 },
+  3: { x: 195, y: 121 },
+  4: { x: 250, y: 107 },
+  5: { x: 364, y: 49 }
 };
 
 const game = {
@@ -351,19 +335,17 @@ const game = {
 };
 
 const getImage = src => game.images[src] || (game.images[src] = Object.assign(new Image(), { src }));
-const currentWeight = () => state.backpack.reduce((sum, fish) => sum + fish.weight, 0);
-const MULTIPLICADOR_DINERO = 1.6; // sube el dinero que da cada pez vendido
-const fishPrice = fish => Math.round(fish.value * fish.sizeMult * fish.mutation.mult * (DATA_ISLAS.find(i => i.id === fish.islandId)?.multVenta ?? 1) * MULTIPLICADOR_DINERO);
-const backpackValue = () => state.backpack.reduce((sum, fish) => sum + fishPrice(fish), 0);
+const MULTIPLICADOR_DINERO = 1.8; // sube el dinero que da cada pez vendido
+const fishPrice = fish => Math.round(fish.value * fish.sizeMult * fish.mutation.mult * (DATA_ISLAS.find(i => i.id === fish.islandId)?.multVenta ?? 1) * MULTIPLICADOR_DINERO * (fish.especial === 'chiguiro' ? 2 : 1));
+const capturasValue = () => state.capturas.reduce((sum, fish) => sum + fishPrice(fish), 0);
 const fishThumb = (fish, locked) => locked ? '❓' : fish.img ? `<img src="${fish.img}" alt="${fish.n}">` : (fish.emoji || '🐟');
 const setScreen = id => document.querySelectorAll('.screen').forEach(s => s.classList.toggle('active', s.id === id));
 const toggleModal = (name, show) => ui.modals[name].style.display = show ? 'flex' : 'none';
 
 function updateHUD() {
   ui.money.textContent = state.money;
-  ui.backpackCount.textContent = state.backpack.length;
-  ui.tripWeight.textContent = currentWeight().toFixed(1);
-  ui.maxWeight.textContent = mochilaMax();
+  ui.capturasCount.textContent = state.capturas.length;
+  if (ui.tripCapturas) ui.tripCapturas.textContent = state.capturas.length;
   if (ui.logrosBadge) ui.logrosBadge.textContent = `${state.logros.length}/${LOGROS.length}`;
   if (ui.casaBadge) ui.casaBadge.textContent = `${state.casaNivel}/${CASA_NIVEL_MAX}`;
   if (typeof renderHome === 'function') renderHome();
@@ -384,24 +366,6 @@ function unlockLogro(logro) {
   updateHUD();
   showLogroToast(logro);
   if (ui.modals.logros && ui.modals.logros.style.display === 'flex') renderLogros();
-}
-
-function showMochilaLlenaToast() {
-  const cont = ui.logroToastContainer || document.getElementById('game-container');
-  if (!cont) return;
-  const toast = document.createElement('div');
-  toast.className = 'logro-toast mochila-llena-toast';
-  toast.innerHTML = `
-    <span class="logro-toast-icono">🎒</span>
-    <div class="logro-toast-texto">
-      <div class="logro-toast-titulo">¡Mochila llena!</div>
-      <div class="logro-toast-nombre">Ve a vender antes de seguir pescando</div>
-    </div>
-  `;
-  cont.appendChild(toast);
-  splash(true);
-  setTimeout(() => toast.classList.add('salir'), 3600);
-  setTimeout(() => toast.remove(), 4200);
 }
 
 function showLogroToast(logro) {
@@ -580,53 +544,48 @@ function setPatience(delta = 0) {
   ui.patienceBar.style.width = `${state.patience}%`;
   ui.patienceBar.style.background = state.patience > 60 ? '#27ae60' : state.patience > 30 ? '#f39c12' : '#e74c3c';
   if (state.patience) return;
-  endTrip('😤 ¡Perdiste la paciencia!\nVuelves al puerto con lo que llevas en la mochila.');
+  endTrip('😤 ¡Perdiste la paciencia!\nVuelves al puerto con lo que llevas.');
 }
 
 function sellFish(index) {
-  const precio = fishPrice(state.backpack[index]);
+  const precio = fishPrice(state.capturas[index]);
   state.money += precio;
   state.stats.dineroTotal += precio;
-  state.backpack.splice(index, 1);
+  state.capturas.splice(index, 1);
   checkLogros();
-  renderBackpack();
+  renderCapturas();
   renderMap();
 }
 
 function sellAll() {
-  if (!state.backpack.length) return;
-  const valor = backpackValue();
+  if (!state.capturas.length) return;
+  const valor = capturasValue();
   state.money += valor;
   state.stats.dineroTotal += valor;
-  state.backpack = [];
+  state.capturas = [];
   checkLogros();
-  renderBackpack();
+  renderCapturas();
   renderMap();
 }
 
-function renderBackpack() {
-  const list = $('backpack-list');
-  const weight = currentWeight();
-  const max = mochilaMax();
-  const pct = Math.min(100, weight / max * 100);
-  $('backpack-weight-bar').style.cssText = `width:${pct}%;background:${pct > 90 ? 'linear-gradient(90deg,#c0392b,#e74c3c)' : pct > 70 ? 'linear-gradient(90deg,#d35400,#f39c12)' : 'linear-gradient(90deg,#6d4c30,#a87c4f)'}`;
-  $('backpack-weight-label').textContent = `${weight.toFixed(1)} / ${max} kg`;
-  $('backpack-total-value').textContent = `$${backpackValue()}`;
-  list.innerHTML = state.backpack.length ? '' : '<div class="backpack-empty">Tu mochila está vacía. ¡Ve a pescar algo! 🎣</div>';
+function renderCapturas() {
+  const list = $('capturas-list');
+  $('capturas-total-value').textContent = `$${capturasValue()}`;
+  list.innerHTML = state.capturas.length ? '' : '<div class="capturas-empty">Todavía no has capturado nada. ¡Ve a pescar algo! 🎣</div>';
 
-  state.backpack.forEach((fish, i) => {
+  state.capturas.forEach((fish, i) => {
     const filtro = fish.mutation.filtro ? `filter:${fish.mutation.filtro};` : '';
     const claseArcoiris = fish.mutation.arcoiris ? 'filtro-arcoiris' : '';
     const brillo = fish.mutation.especial ? `box-shadow:0 0 14px ${fish.mutation.color};` : '';
     list.insertAdjacentHTML('beforeend', `
-      <div class="backpack-entry">
-        <div class="backpack-entry-thumb" style="background:${fish.color}33;${brillo}">${fish.img ? `<img class="${claseArcoiris}" src="${fish.img}" alt="${fish.n}" style="${filtro}">` : `<span class="${claseArcoiris}" style="${filtro}">${fish.emoji || '🐟'}</span>`}</div>
-        <div class="backpack-entry-info">
-          <h4>${fish.n} <span class="mutacion-tag" data-mutacion="${fish.mutation.id}" style="background:${fish.mutation.tagBg || fish.mutation.color}">${fish.mutation.nombre}</span></h4>
+      <div class="captura-entry">
+        <div class="captura-entry-thumb" style="background:${fish.color}33;${brillo}">${fish.img ? `<img class="${claseArcoiris}" src="${fish.img}" alt="${fish.n}" style="${filtro}">` : `<span class="${claseArcoiris}" style="${filtro}">${fish.emoji || '🐟'}</span>`}</div>
+        <div class="captura-entry-info">
+          <h4>${fish.n} <span class="mutacion-tag" data-mutacion="${fish.mutation.id}" style="background:${fish.mutation.tagBg || fish.mutation.color}">${fish.mutation.nombre}</span>${fish.especial === 'chiguiro' ? ' <span class="mutacion-tag" style="background:#a97c50">×2 💰</span>' : ''}</h4>
           <p>${fish.weight.toFixed(1)} kg · x${fish.sizeMult.toFixed(2)} tamaño</p>
         </div>
-        <div class="backpack-entry-value">$${fishPrice(fish)}</div>
-        <div class="backpack-entry-actions"><button class="btn btn-sell-one" data-index="${i}">Vender</button></div>
+        <div class="captura-entry-value">$${fishPrice(fish)}</div>
+        <div class="captura-entry-actions"><button class="btn btn-sell-one" data-index="${i}">Vender</button></div>
       </div>
     `);
   });
@@ -649,72 +608,27 @@ function renderMap() {
   updateHUD();
   ui.map.innerHTML = '';
 
-  const jungle = svg('g');
-  jungle.setAttribute('opacity', '.35');
-  const arbolitos = [
-    [40, 30, 22], [770, 40, 26], [20, 220, 20], [800, 180, 24], [30, 400, 24],
-    [790, 400, 22], [400, 30, 18], [350, 440, 20], [700, 440, 18], [120, 440, 16],
-    [640, 60, 16], [90, 150, 14], [760, 300, 18], [15, 320, 16]
-  ];
-  arbolitos.forEach(([x, y, r]) => {
-    const g = svg('g');
-    g.innerHTML = `<circle cx="${x}" cy="${y}" r="${r}" fill="#2e5c33"/><circle cx="${x - r * .4}" cy="${y - r * .3}" r="${r * .6}" fill="#3a6f3f"/>`;
-    jungle.appendChild(g);
-  });
-  ui.map.appendChild(jungle);
-
-  const waypoints = DATA_ISLAS.map(i => MAP_SHAPES[i.id]).filter(Boolean);
-  let riverPath = `M ${waypoints[0].cx},${waypoints[0].cy}`;
-  for (let i = 0; i < waypoints.length - 1; i++) {
-    const a = waypoints[i], b = waypoints[i + 1];
-    const mx = (a.cx + b.cx) / 2, my = (a.cy + b.cy) / 2 - 34;
-    riverPath += ` Q ${mx},${my} ${b.cx},${b.cy}`;
-  }
-  const riverGroup = svg('g');
-  riverGroup.innerHTML = `
-    <path d="${riverPath}" stroke="#0d4f6e" stroke-width="78" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity=".9"/>
-    <path d="${riverPath}" stroke="#1a7aa8" stroke-width="64" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
-    <path d="${riverPath}" stroke="#3fa9d6" stroke-width="6" fill="none" stroke-linecap="round" stroke-dasharray="1 22" opacity=".55"/>
-  `;
-  ui.map.appendChild(riverGroup);
-
-  const corriente = svg('g');
-  corriente.setAttribute('opacity', '.16');
-  [-16, 16].forEach(offset => {
-    const wave = svg('path');
-    let d = `M ${waypoints[0].cx},${waypoints[0].cy + offset}`;
-    for (let i = 0; i < waypoints.length - 1; i++) {
-      const a = waypoints[i], b = waypoints[i + 1];
-      const mx = (a.cx + b.cx) / 2, my = (a.cy + b.cy) / 2 - 34 + offset;
-      d += ` Q ${mx},${my} ${b.cx},${b.cy + offset}`;
-    }
-    Object.entries({ d, stroke: '#fff', 'stroke-width': '2', fill: 'none' }).forEach(([k, v]) => wave.setAttribute(k, v));
-    corriente.appendChild(wave);
-  });
-  ui.map.appendChild(corriente);
-
-  [[290, 70, 1], [500, 175, -1], [180, 280, 1], [640, 260, -1], [400, 355, 1]].forEach(([x, y, dir]) => {
-    const fish = svg('g');
-    fish.setAttribute('transform', `translate(${x},${y}) scale(${dir * .9},.9)`);
-    fish.setAttribute('opacity', '.5');
-    fish.innerHTML = '<ellipse cx="0" cy="0" rx="9" ry="5" fill="#a8d8ea"/><path d="M -9,0 L -15,-5 L -15,5 Z" fill="#a8d8ea"/>';
-    ui.map.appendChild(fish);
-  });
+  const fondo = svg('image');
+  fondo.setAttribute('href', 'fotos/mapa_principal.png');
+  fondo.setAttribute('x', '0');
+  fondo.setAttribute('y', '0');
+  fondo.setAttribute('width', '394');
+  fondo.setAttribute('height', '256');
+  fondo.setAttribute('preserveAspectRatio', 'xMidYMid slice');
+  ui.map.appendChild(fondo);
 
   DATA_ISLAS.forEach((island, idx) => {
-    const shape = MAP_SHAPES[island.id];
-    if (!shape) return;
+    const pin = MAP_PINS[island.id];
+    if (!pin) return;
     const locked = !island.desc;
     const group = svg('g');
     group.setAttribute('class', `island-group ${locked ? 'locked' : ''}`);
     group.innerHTML = `
-      <ellipse cx="${shape.cx}" cy="${shape.cy + 38}" rx="70" ry="12" fill="rgba(0,0,0,.25)"/>
-      <path class="island-shape" d="${shape.path}" fill="${shape.color}" stroke="#5d4522" stroke-width="3" stroke-linejoin="round"/>
-      ${!locked && shape.decor ? `<g class="island-decor">${DECOR[shape.decor](shape.cx, shape.cy - 8)}</g>` : ''}
-      <text x="${shape.cx}" y="${shape.cy + 2}" class="island-label" font-size="15">${island.nombre}</text>
-      <text x="${shape.cx}" y="${shape.cy + 20}" class="island-sublabel" font-size="12" fill="${locked ? '#f1c40f' : '#d4f8d4'}">${locked ? `🔒 $${island.costo}` : '⚓ Zarpar'}</text>
-      <circle class="island-order" cx="${shape.cx - 48}" cy="${shape.cy - 44}" r="14"/>
-      <text x="${shape.cx - 48}" y="${shape.cy - 39}" class="island-order-label" font-size="13">${idx + 1}</text>
+      <circle class="island-zona-halo" cx="${pin.x}" cy="${pin.y}" r="11"/>
+      <circle class="island-shape" cx="${pin.x}" cy="${pin.y}" r="7"/>
+      <text x="${pin.x}" y="${pin.y + 2.6}" class="island-order-label" font-size="7">${idx + 1}</text>
+      <text x="${pin.x}" y="${pin.y - 13}" class="island-label" font-size="8">${island.nombre}</text>
+      <text x="${pin.x}" y="${pin.y + 20}" class="island-sublabel" font-size="6.5" fill="${locked ? '#f1c40f' : '#d4f8d4'}">${locked ? `🔒 $${island.costo}` : '⚓ Zarpar'}</text>
     `;
 
     const fishList = island.peces.map(f => f.n).join(', ');
@@ -723,7 +637,7 @@ function renderMap() {
     group.onmouseleave = () => ui.tooltip.classList.remove('show');
     group.onclick = () => {
       if (island.desc) return openIslandGrabSequence(island.id);
-      if (state.money < island.costo) return tooltip('<b style="color:#e74c3c">¡No tienes suficiente dinero!</b>', ui.mapWrap.getBoundingClientRect().left + shape.cx, ui.mapWrap.getBoundingClientRect().top + shape.cy, true);
+      if (state.money < island.costo) return tooltip('<b style="color:#e74c3c">¡No tienes suficiente dinero!</b>', ui.mapWrap.getBoundingClientRect().left + pin.x, ui.mapWrap.getBoundingClientRect().top + pin.y, true);
       state.money -= island.costo;
       island.desc = true;
       checkLogros();
@@ -830,7 +744,7 @@ function startTripTimer() {
     game.timeLeft -= 1;
     ui.timer.textContent = `⏱️ ${game.timeLeft}s`;
     ui.timer.classList.toggle('timer-urgente', game.timeLeft <= 15);
-    if (game.timeLeft <= 0) endTrip('⏱️ ¡Se acabó el tiempo!\nVuelves al puerto con lo que llevas en la mochila.');
+    if (game.timeLeft <= 0) endTrip('⏱️ ¡Se acabó el tiempo!\nVuelves al puerto con lo que llevas.');
   }, 1000);
 }
 
@@ -841,6 +755,19 @@ function startPatienceDrain() {
   const decaimiento = d.decaimientoPaciencia * (1 - aguante);
   game.patienceTimer = setInterval(() => setPatience(-decaimiento), d.tickPaciencia);
 }
+
+document.addEventListener('visibilitychange', () => {
+  if (!game.island) return; 
+  if (document.hidden) {
+    clearInterval(game.tripTimer);
+    clearInterval(game.patienceTimer);
+    game.tripTimer = null;
+    game.patienceTimer = null;
+  } else if (!game.tripTimer && !game.patienceTimer) {
+    startTripTimer();
+    startPatienceDrain();
+  }
+});
 
 function initFishingScene() {
   game.fishes = Array.from({ length: 8 + Math.floor(rand(5)) }, () => createFish(pickWeighted(game.island.peces)));
@@ -898,18 +825,24 @@ function createMina() {
     x: 130 + rand(Math.max(40, w - 220)),
     y: 90 + rand(Math.max(40, h - 170)),
     r: (16 + rand(6)) * TAM_ESCALA() / 1.5,
-    bob: rand(Math.PI * 2)
+    bob: rand(Math.PI * 2),
+    fase: 'subiendo',
+    progreso: 0,
+    tiempoActiva: 0,
+    duracionActiva: 6000 + rand(7000)
   };
 }
 
 function clickMina(x, y) {
   for (let i = 0; i < game.minas.length; i++) {
     const mina = game.minas[i];
+    if (mina.fase !== 'activa') continue;
     const dy = y - (mina.drawY ?? mina.y);
     if ((x - mina.x) ** 2 + dy ** 2 <= (mina.r + 8) ** 2) return explotarMina(mina), true;
   }
   return false;
 }
+
 
 function crearExplosion(x, y) {
   game.explosions.push({ x, y, life: 26, maxLife: 26 });
@@ -985,18 +918,18 @@ function boom() {
 
 function explotarMina(mina) {
   game.tripMinaHit = true;
-  const habiaAlgo = state.backpack.length > 0;
-  state.backpack = [];
+  const habiaAlgo = state.capturas.length > 0;
+  state.capturas = [];
   setPatience(-28);
   crearExplosion(mina.x, mina.drawY ?? mina.y);
   burst(mina.x, mina.drawY ?? mina.y, '#ff7043', 22);
   burst(mina.x, mina.drawY ?? mina.y, '#ffca28', 14);
   burst(mina.x, mina.drawY ?? mina.y, '#2d2d2d', 18);
   addLabel('💥 ¡MINA NAVAL!', mina.x, (mina.drawY ?? mina.y) - 24, '#ff5252');
-  addLabel(habiaAlgo ? 'Perdiste TODO lo de la mochila' : 'Menos mal que no llevabas nada', mina.x, (mina.drawY ?? mina.y) + 8, '#ffab91');
+  addLabel(habiaAlgo ? 'Perdiste TODO lo capturado' : 'Menos mal que no llevabas nada', mina.x, (mina.drawY ?? mina.y) + 8, '#ffab91');
   boom();
   splash(false);
-  renderBackpack();
+  renderCapturas();
 
   const idx = game.minas.indexOf(mina);
   if (idx >= 0) game.minas.splice(idx, 1);
@@ -1005,33 +938,56 @@ function explotarMina(mina) {
 
 function updateMinas(t) {
   const { ctx } = game;
-  game.minas.forEach(mina => {
-    mina.drawY = mina.y + Math.sin(t * 1.3 + mina.bob) * 4;
+  const dtMs = clamp((t - (game.lastMinaT ?? t)) * 1000, 0, 100);
+  game.lastMinaT = t;
+  const img = getImage('fotos/mina.png');
+  const VEL_TRANSICION = 700; // ms que tarda en subir/hundirse
+
+  for (let i = game.minas.length - 1; i >= 0; i--) {
+    const mina = game.minas[i];
+
+    if (mina.fase === 'subiendo') {
+      mina.progreso = Math.min(1, mina.progreso + dtMs / VEL_TRANSICION);
+      if (mina.progreso >= 1) { mina.fase = 'activa'; mina.tiempoActiva = 0; }
+    } else if (mina.fase === 'activa') {
+      mina.tiempoActiva += dtMs;
+      if (mina.tiempoActiva >= mina.duracionActiva) mina.fase = 'bajando';
+    } else if (mina.fase === 'bajando') {
+      mina.progreso = Math.max(0, mina.progreso - dtMs / VEL_TRANSICION);
+      if (mina.progreso <= 0) {
+        game.minas.splice(i, 1);
+        setTimeout(() => { if (game.island) game.minas.push(createMina()); }, 900 + rand(2200));
+        continue;
+      }
+    }
+
+    const hundida = (1 - mina.progreso) * 34;
+    mina.drawY = mina.y + Math.sin(t * 1.3 + mina.bob) * 4 + hundida;
+    const alpha = .12 + mina.progreso * .88;
+
     ctx.save();
+    ctx.globalAlpha = alpha;
     ctx.translate(mina.x, mina.drawY);
-    ctx.beginPath(); ctx.arc(0, 0, mina.r, 0, 7);
-    ctx.fillStyle = '#1c1c1c'; ctx.fill();
-    ctx.strokeStyle = '#000'; ctx.lineWidth = 2; ctx.stroke();
-    ctx.fillStyle = '#3a3a3a';
-    for (let i = 0; i < 6; i++) {
-      const ang = i / 6 * Math.PI * 2;
-      ctx.beginPath(); ctx.arc(Math.cos(ang) * mina.r * .55, Math.sin(ang) * mina.r * .55, mina.r * .15, 0, 7); ctx.fill();
+
+    if (img.complete && img.naturalWidth > 0) {
+      const escala = (mina.r * 2) / 22;
+      const w = img.naturalWidth * escala, h = img.naturalHeight * escala;
+      const bolaCy = 11 * escala;
+      ctx.drawImage(img, -w / 2, -bolaCy, w, h);
+      if (mina.fase === 'activa') {
+        const blink = (Math.sin(t * 6) + 1) / 2;
+        ctx.beginPath(); ctx.arc(0, -mina.r * .15, mina.r * .22, 0, 7);
+        ctx.fillStyle = `rgba(231,76,60,${.5 + blink * .5})`;
+        ctx.shadowColor = '#e74c3c'; ctx.shadowBlur = 8 + blink * 8;
+        ctx.fill(); ctx.shadowBlur = 0;
+      }
+    } else {
+      ctx.beginPath(); ctx.arc(0, 0, mina.r, 0, 7);
+      ctx.fillStyle = '#1c1c1c'; ctx.fill();
+      ctx.strokeStyle = '#000'; ctx.lineWidth = 2; ctx.stroke();
     }
-    ctx.strokeStyle = '#111'; ctx.lineWidth = 3;
-    for (let i = 0; i < 8; i++) {
-      const ang = i / 8 * Math.PI * 2 + .3;
-      ctx.beginPath();
-      ctx.moveTo(Math.cos(ang) * mina.r, Math.sin(ang) * mina.r);
-      ctx.lineTo(Math.cos(ang) * (mina.r + 9), Math.sin(ang) * (mina.r + 9));
-      ctx.stroke();
-    }
-    const blink = (Math.sin(t * 6) + 1) / 2;
-    ctx.beginPath(); ctx.arc(0, -mina.r * .15, mina.r * .22, 0, 7);
-    ctx.fillStyle = `rgba(231,76,60,${.5 + blink * .5})`;
-    ctx.shadowColor = '#e74c3c'; ctx.shadowBlur = 8 + blink * 8;
-    ctx.fill(); ctx.shadowBlur = 0;
     ctx.restore();
-  });
+  }
 }
 
 function clickFish(x, y) {
@@ -1105,7 +1061,7 @@ function drawFightLine() {
   if (!game.fight) return;
   const { ctx } = game;
   const f = game.fight;
-  const puntaCana = { x: 96, y: ui.canvas.height - 60 };
+  const puntaCana = { x: FISHER_X + FISHER_ALTO * .38, y: FISHER_FEET_Y - FISHER_ALTO * .82 };
   ctx.save();
   ctx.strokeStyle = 'rgba(230,230,230,.85)';
   ctx.lineWidth = 2;
@@ -1135,25 +1091,23 @@ function catchFish(fish, index) {
   const sizeMult = .7 + rand(.7);
   const weight = fish.type.peso * sizeMult;
   const mutation = pickMutation(equipoActual().cebo.suerte || 0);
-  if (currentWeight() + weight > mochilaMax()) return addLabel('Mochila llena', fish.x, fish.y, '#e74c3c'), setPatience(-3);
 
   fish.caught = true;
-  state.backpack.push({ n: fish.type.n, value: fish.type.valor, img: fish.type.img, emoji: fish.type.emoji, color: fish.type.color, islandId: game.island.id, sizeMult, weight, mutation });
+  state.capturas.push({ n: fish.type.n, value: fish.type.valor, img: fish.type.img, emoji: fish.type.emoji, color: fish.type.color, islandId: game.island.id, sizeMult, weight, mutation, especial: fish.type.especial });
 
   state.stats.totalPeces++;
   if (!state.stats.especies.includes(fish.type.n)) state.stats.especies.push(fish.type.n);
   if (!state.stats.mutaciones.includes(mutation.id)) state.stats.mutaciones.push(mutation.id);
   state.stats.capturasPorEspecie[fish.type.n] = (state.stats.capturasPorEspecie[fish.type.n] || 0) + 1;
   if (MUTACIONES_RARAS_CASA.includes(mutation.id)) state.stats.capturasMutacionRara++;
-  if (currentWeight() >= mochilaMax() - 0.05) {
-    if (!state.stats.mochilaLlena) showMochilaLlenaToast();
-    state.stats.mochilaLlena = true;
-  }
   checkLogros();
 
   updateHUD();
   setPatience(curDif().bonusAtrapar + equipoActual().cana.paciencia);
-  if (mutation.especial) {
+  if (fish.type.especial === 'chiguiro') {
+    burst(fish.x, fish.y, '#ffd54f', 34);
+    addLabel('¡CHIGÜIRO! Doble $ 🎉', fish.x, fish.y - 26, '#ffd54f');
+  } else if (mutation.especial) {
     burst(fish.x, fish.y, mutation.color, 30);
     addLabel(mutation.nombre, fish.x, fish.y - 26, mutation.color);
   } else {
@@ -1207,7 +1161,7 @@ function drawFondoIsla(w, h, t) {
   if (foto && foto.complete && foto.naturalWidth > 0) {
     const escala = Math.max(w / foto.naturalWidth, h / foto.naturalHeight);
     const dw = foto.naturalWidth * escala, dh = foto.naturalHeight * escala;
-    ctx.drawImage(foto, (w - dw) / 2, (h - dh) / 2, dw, dh);
+    ctx.drawImage(foto, (w - dw) / 2, h - dh, dw, dh);
     ctx.fillStyle = `${game.island.fondo}55`; 
     ctx.fillRect(0, 0, w, h);
   } else {
@@ -1280,31 +1234,43 @@ function drawCrosshair() {
   ctx.restore();
 }
 
+const PESCADOR_FOTOS = {
+  feliz: 'fotos/pescador_feliz.png',
+  neutro: 'fotos/pescador_neutro.png',
+  molesto: 'fotos/pescador_molesto.png',
+  enojado: 'fotos/pescador_enojado.png'
+};
+const FISHER_X = 140;
+const FISHER_FEET_Y = 168;
+const FISHER_ALTO = 155;
+
 function drawFisher(t, h) {
   const { ctx } = game;
-  const mood = state.patience > 70 ? ['sonrisa', 0, '#27ae60'] : state.patience > 40 ? ['recta', 2, '#74b9ff'] : state.patience > 15 ? ['mueca', 8, '#f39c12', 1] : ['grito', 14, '#e74c3c', 1];
+  const moodKey = state.patience > 70 ? 'feliz' : state.patience > 40 ? 'neutro' : state.patience > 15 ? 'molesto' : 'enojado';
   const furious = state.patience <= 15;
   const shake = furious ? Math.sin(t * 18) * 2 : 0;
   const bob = Math.sin(t * (furious ? 6 : 1.6)) * (furious ? 1 : 2.5);
-  ctx.save(); ctx.translate(70 + shake, h - 18 + bob);
-  ctx.fillStyle = '#6d4c30'; ctx.fillRect(-34, 10, 68, 8);
-  ctx.fillStyle = '#5a3d27'; for (let x = -30; x <= 26; x += 14) ctx.fillRect(x, 10, 4, 18);
-  ctx.fillStyle = mood[2]; ctx.beginPath(); ctx.moveTo(-16, 10); ctx.quadraticCurveTo(-18, -28, 0, -30); ctx.quadraticCurveTo(18, -28, 16, 10); ctx.fill();
-  const armAngle = -.3 - (furious ? .35 : state.patience <= 40 ? .15 : 0);
-  ctx.save(); ctx.translate(10, -18); ctx.rotate(armAngle); ctx.fillStyle = '#e6b894'; ctx.fillRect(-3, 0, 6, 26); ctx.strokeStyle = '#8d6e63'; ctx.lineWidth = 2.5; ctx.beginPath(); ctx.moveTo(0, 24); ctx.lineTo(46, -36); ctx.stroke(); ctx.restore();
-  ctx.beginPath(); ctx.arc(0, -42, 13, 0, 7); ctx.fillStyle = '#e6b894'; ctx.fill();
-  ctx.beginPath(); ctx.arc(0, -46, 13.5, Math.PI, 0); ctx.fillStyle = '#34495e'; ctx.fill(); ctx.fillRect(-13.5, -46, 27, 4);
-  ctx.strokeStyle = '#3a2a1a'; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(-9, -47 - mood[1] * .15); ctx.lineTo(-3, -45 - mood[1] * .4); ctx.moveTo(9, -47 - mood[1] * .15); ctx.lineTo(3, -45 - mood[1] * .4); ctx.stroke();
-  if (furious) { ctx.beginPath(); ctx.moveTo(-8, -41); ctx.lineTo(-2, -41); ctx.moveTo(2, -41); ctx.lineTo(8, -41); ctx.stroke(); }
-  else { ctx.fillStyle = '#2d2d2d'; ctx.beginPath(); ctx.arc(-5, -41, 1.8, 0, 7); ctx.arc(5, -41, 1.8, 0, 7); ctx.fill(); }
-  ctx.beginPath();
-  if (mood[0] === 'sonrisa') ctx.arc(0, -36, 5, .15 * Math.PI, .85 * Math.PI);
-  else if (mood[0] === 'recta') { ctx.moveTo(-5, -35); ctx.lineTo(5, -35); }
-  else if (mood[0] === 'mueca') { ctx.moveTo(-5, -33); ctx.lineTo(0, -36); ctx.lineTo(5, -33); }
-  else { ctx.ellipse(0, -34, 4.5, 5, 0, 0, 7); ctx.fillStyle = '#5a1f1f'; ctx.fill(); }
-  ctx.stroke();
-  if (mood[3]) { drawDrop(13, -52 + Math.sin(t * 4) * 2, 4); if (furious) drawDrop(-14, -50 + Math.sin(t * 4 + 1) * 2, 3.5); }
-  if (furious) for (let i = 0; i < 3; i++) { const x = -10 + i * 10, y = Math.sin(t * 6 + i) * 2; ctx.beginPath(); ctx.moveTo(x, -60 - y); ctx.lineTo(x + 4, -68 - y); ctx.strokeStyle = 'rgba(231,76,60,.8)'; ctx.stroke(); }
+
+  const img = getImage(PESCADOR_FOTOS[moodKey]);
+  const listo = img.complete && img.naturalWidth > 0;
+  const imgH = FISHER_ALTO;
+  const imgW = listo ? imgH * (img.naturalWidth / img.naturalHeight) : imgH * (33 / 38);
+
+  ctx.save();
+  ctx.translate(FISHER_X + shake, FISHER_FEET_Y + bob);
+  ctx.imageSmoothingEnabled = false;
+  if (listo) ctx.drawImage(img, -imgW / 2, -imgH, imgW, imgH);
+  else { ctx.fillStyle = '#e6b894'; ctx.beginPath(); ctx.arc(0, -imgH * .82, 13, 0, 7); ctx.fill(); }
+  ctx.imageSmoothingEnabled = true;
+
+  if (furious) {
+    drawDrop(imgW * .32, -imgH * .95 + Math.sin(t * 4) * 2, 4);
+    for (let i = 0; i < 3; i++) {
+      const x = -10 + i * 10, y = Math.sin(t * 6 + i) * 2;
+      ctx.beginPath(); ctx.moveTo(x, -imgH - 6 - y); ctx.lineTo(x + 4, -imgH - 14 - y);
+      ctx.strokeStyle = 'rgba(231,76,60,.8)'; ctx.stroke();
+    }
+  }
   ctx.restore();
 
   function drawDrop(x, y, size) {
@@ -1320,7 +1286,7 @@ function drawFish(fish) {
   const flip = fish.dir * (artMiraIzquierda(fish.type) ? -1 : 1);
   ctx.save(); ctx.translate(fish.x, fish.y); ctx.rotate(bank);
   if (fish.type.img) {
-    const img = getImage(fish.type.img), w = size * 2.4, h = size * 1.6 * squash;
+    const img = getImage(fish.type.img2 && Math.floor(Date.now() / 180) % 2 ? fish.type.img2 : fish.type.img), w = size * 2.4, h = size * 1.6 * squash;
     ctx.scale(flip, 1);
     img.complete && img.naturalWidth > 0 ? ctx.drawImage(img, -w / 2, -h / 2, w, h) : (ctx.beginPath(), ctx.arc(0, 0, size * .7, 0, 7), ctx.fillStyle = fish.type.color, ctx.fill());
     ctx.scale(1 / flip, 1);
@@ -1528,8 +1494,8 @@ $('btn-home-mejorar').onclick = () => { renderCasa(); toggleModal('casa', true);
 $('btn-home-pescar').onclick = irAlMapa;
 $('btn-open-logros').onclick = () => { renderLogros(); toggleModal('logros', true); };
 $('btn-close-logros').onclick = () => toggleModal('logros', false);
-$('btn-open-backpack').onclick = () => { renderBackpack(); toggleModal('backpack', true); };
-$('btn-close-backpack').onclick = () => toggleModal('backpack', false);
+$('btn-open-capturas').onclick = () => { renderCapturas(); toggleModal('capturas', true); };
+$('btn-close-capturas').onclick = () => toggleModal('capturas', false);
 $('btn-sell-all').onclick = sellAll;
 $('btn-leave').onclick = () => endTrip();
 
@@ -1542,8 +1508,7 @@ document.querySelector('.shop-tabs').onclick = e => {
 
 const TIENDA_CATS = [
   { tab: 'tab-canas', arr: EQUIPO_CANAS, nivelKey: 'canaNivel' },
-  { tab: 'tab-cebos', arr: EQUIPO_CEBOS, nivelKey: 'ceboNivel' },
-  { tab: 'tab-mochilas', arr: EQUIPO_MOCHILAS, nivelKey: 'mochilaNivel' }
+  { tab: 'tab-cebos', arr: EQUIPO_CEBOS, nivelKey: 'ceboNivel' }
 ];
 
 function comprarEquipo(nivelKey, index) {
@@ -1563,9 +1528,6 @@ function statsLine(nivelKey, item) {
   }
   if (nivelKey === 'ceboNivel') {
     return `🎯 Precisión ×${item.mult.toFixed(2)} · 🍀 Suerte de mutación +${Math.round(item.suerte * 100)}%`;
-  }
-  if (nivelKey === 'mochilaNivel') {
-    return `🎒 Capacidad +${item.cap} kg`;
   }
   return '';
 }
